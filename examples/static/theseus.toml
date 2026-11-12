@@ -1,0 +1,10 @@
+name = "website"
+branch = "main"
+domains = ["www.example.com"]
+
+[static]
+output = "public"
+# For a generated site:
+# image = "oven/bun:1"
+# build = "bun install --frozen-lockfile && bun run build"
+# output = "dist"

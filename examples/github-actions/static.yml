@@ -1,0 +1,39 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: theseus-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1'
+      - name: Build
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+      - name: Package static output
+        run: |
+          mkdir -p "$RUNNER_TEMP/bundle/public"
+          cp theseus.toml "$RUNNER_TEMP/bundle/"
+          cp -a dist/. "$RUNNER_TEMP/bundle/public/"
+          tar -czf "$RUNNER_TEMP/release.tar.gz" -C "$RUNNER_TEMP/bundle" theseus.toml public
+      - name: Deploy to VM
+        env:
+          THESEUS_SSH_KEY: ${{ secrets.THESEUS_SSH_KEY }}
+          THESEUS_KNOWN_HOSTS: ${{ secrets.THESEUS_KNOWN_HOSTS }}
+          THESEUS_SSH_DEST: ${{ vars.THESEUS_SSH_DEST }}
+        run: bash .github/scripts/theseus-deploy.sh "$RUNNER_TEMP/release.tar.gz"

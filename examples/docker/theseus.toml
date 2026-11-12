@@ -1,0 +1,8 @@
+name = "api"
+branch = "main"
+domains = ["api.example.com"]
+
+[docker]
+dockerfile = "Dockerfile"
+port = 3000
+healthcheck = "/health"

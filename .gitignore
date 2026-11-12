@@ -1,0 +1,7 @@
+/theseus
+/.theseus/
+.env
+.env.*
+!.env.example
+/theseus-ci
+/theseus-ci.pub
